@@ -26,7 +26,7 @@ echo -e "ID of the stopped instance: $stop_id \n"
 
 echo -e "Name of the stopped instance: $stop_name \n"
 
-#aws ec2 create-image --instance-id $stop_id --name "$stop_name-`date '+%Y-%m-%d'`"
+aws ec2 create-image --instance-id $stop_id --name "$stop_name-`date '+%Y-%m-%d'`"
 
 ##################################Delete old images#######################################
 	/bin/rm -f /tmp/ami_id
