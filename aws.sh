@@ -13,6 +13,8 @@ echo -e  "PublicIP: $address\n"
 echo -e "State:"
 aws ec2 describe-instances  --filter "Name=ip-address,Values=$address" --query "Reservations[].Instances[][State.Name]" | grep '[a-zA-Z]'
 
+/usr/bin/nc -w 2 -v $i  22 </dev/null; echo $?
+
 HTTP_STATUS="$(curl -IL --silent $i | grep HTTP )";
 echo "${HTTP_STATUS}";
 
