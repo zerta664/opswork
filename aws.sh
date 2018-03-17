@@ -36,7 +36,7 @@ done
 
 	echo -e "Name of the stopped instance: $stop_name \n"
 
-#	aws ec2 create-image --instance-id $stop_id --name "$stop_name-`date '+%Y-%m-%d'`"
+	aws ec2 create-image --instance-id $stop_id --name "$stop_name-`date '+%Y-%m-%d'`"
 
 
 ################################
@@ -58,7 +58,7 @@ do
 		aws ec2 describe-images --owners 717986625066  --image-ids $ami | \
 		 grep snap | awk ' { print $2 }' >> /tmp/snapshots.txt
 
-#		aws  ec2 deregister-image --image-id $ami
+		aws  ec2 deregister-image --image-id $ami
 		##If you want delete snapshot  for s in `cat /tmp/snapshots.txt`;do aws ec2 delete-snapshot --snapshot-id $s ; done
 	done		
 
@@ -67,7 +67,7 @@ done
 
 #####################Terminate stopped instance###########################
 
-#	aws ec2 terminate-instances --instance-ids $stop_id
+	aws ec2 terminate-instances --instance-ids $stop_id
 
 ###########################################################################
 
