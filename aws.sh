@@ -43,28 +43,33 @@ done
 ##Delete old images
 #######################################
 
-	/bin/rm -f /tmp/ami_id
-	/bin/rm -f /tmp/snapshots.txt
+	cat /dev/null > /tmp/snapshots.txt
 
-for day in {7..10}
+
+	aws ec2 describe-images --owners 717986625066  --query 'Images[*].[CreationDate]' --output text > /tmp/time
+
+	cat /root/time | rev | cut -c 6- | rev > /tmp/time2
+	
+	ago=$(date '+%Y-%m-%dT%H:%M:%S' --date "7 days ago")
+for ts  in `cat /tmp/time2`
 do
-		DEL="$(date +%Y-%m-%d --date "$day days ago")"
+    if [[ "$ago" > "$ts" ]] ;
 
-		aws ec2 describe-images --owners 717986625066  --filter "Name=name,Values=*"$DEL"*" | \
-		 grep "ImageId" | awk '{print $2}'|cut -d '"' -f 2 >>/tmp/ami_id
+    then
 
-	for ami in `cat /tmp/ami_id`
-	do
-		aws ec2 describe-images --owners 717986625066  --image-ids $ami | \
-		 grep snap | awk ' { print $2 }' >> /tmp/snapshots.txt
+	aws ec2 describe-images --owners 717986625066  --query 'Images[*].[ImageId,CreationDate]' --output text | `
+        ` grep "$ts" | awk '{print $1}' | xargs aws ec2 describe-images  --image-ids | \
+	grep snap | awk ' { print $2 }' >> /tmp/snapshots.txt
 
-		aws  ec2 deregister-image --image-id $ami
-		##If you want delete snapshot  for s in `cat /tmp/snapshots.txt`;do aws ec2 delete-snapshot --snapshot-id $s ; done
-	done		
+	aws ec2 describe-images --owners 717986625066  --query 'Images[*].[ImageId,CreationDate]' --output text | `
+        ` grep "$ts" | awk '{print $1}' | xargs aws ec2 deregister-image   --image-id
+
+
+   fi
 
 done
-
-
+	##If you want delete snapshot  for s in `cat /tmp/snapshots.txt`;do aws ec2 delete-snapshot --snapshot-id $s ; done
+	
 #####################Terminate stopped instance###########################
 
 	aws ec2 terminate-instances --instance-ids $stop_id
